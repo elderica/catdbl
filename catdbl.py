@@ -76,7 +76,7 @@ def parse(fp):
         vheaders.append(VariableHeader._make(
             variable_header_parser.unpack(vheaders_s.read(96))))
 
-    for i in range(d_size/ch_size):
+    for i in range(d_size):
         ts = dvalues_s.read(2*ch_size)
         line_dvalues = []
         for ch in range(ch_size):
