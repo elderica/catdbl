@@ -83,7 +83,9 @@ def parse(fp):
             line_dvalues.append(
                 data_value_reader.unpack(ts[2*ch:2*ch+2])[0])
         dvaluess.append(line_dvalues)
-            
+
+    vheaders_s.close()
+    dvalues_s.close()
     return ParsedTarget._make((fixed_header, vheaders, dvaluess))
 
 def csv_print(pt, fp):
