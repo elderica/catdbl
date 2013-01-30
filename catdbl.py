@@ -50,6 +50,12 @@ VariableHeader = collections.namedtuple('VariableHeader', [
     'spare'
     ])
 
+ParsedTarget = collections.namedtuple('ParsedTarget', [
+    'fixed_header',
+    'variable_headers',
+    'data_valuess'
+    ])
+
 data_value_reader = struct.Struct('<H')
 
 def parse(fp):
@@ -78,7 +84,24 @@ def parse(fp):
                 data_value_reader.unpack(ts[2*ch:2*ch+2])[0])
         dvaluess.append(line_dvalues)
             
-    return fixed_header, vheaders, dvaluess
+    return ParsedTarget._make((fixed_header, vheaders, dvaluess))
+
+def csv_print(pt, fp):
+    out = csv.writer(fp)
+    out.writerow([pt.fixed_header.title])
+    out.writerow(map(lambda t: t.channel_comment.strip(), pt.variable_headers))
+    out.writerows(pt.data_valuess)
+
+def main():
+    if len(sys.argv) > 1:
+        fp = file(sys.argv[1], 'rb')
+    else:
+        fp = sys.stdin
+
+    pt = parse(fp)
+    csv_print(pt, sys.stdout)
+
+    fp.close()
 
 if __name__ == '_main__':
     pass
