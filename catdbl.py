@@ -89,8 +89,10 @@ def parse(fp):
 def csv_print(pt, fp):
     out = csv.writer(fp)
     out.writerow([pt.fixed_header.title])
-    out.writerow(map(lambda t: t.channel_comment.strip(), pt.variable_headers))
-    out.writerows(pt.data_valuess)
+    out.writerow([t.channel_comment.strip() for t in pt.variable_headers])
+    for dvs in pt.data_valuess:
+        epairs = zip([ch.physical_amount_cf for ch in pt.variable_headers], dvs)
+        out.writerow(['%9.4E' % (p[0]*p[1],) for p in epairs])        
 
 def main():
     if len(sys.argv) > 1:
