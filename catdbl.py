@@ -17,6 +17,8 @@
 import collections
 import struct
 import StringIO
+import csv
+import sys
 
 fixed_header_parser = struct.Struct('<14s2s32s48s16sLHHHfH384s')
 FixedHeader = collections.namedtuple('FixedHeader', [
@@ -61,21 +63,22 @@ def parse(fp):
     vheaders_s = StringIO.StringIO(fp.read(96*ch_size))
     dvalues_s = StringIO.StringIO(fp.read())
 
-    def _vheaders():
-        for i in range(ch_size):
-            yield VariableHeader._make(
-                variable_header_parser.unpack(vheaders_s.read(96)))
+    vheaders = []
+    dvaluess = []
 
-    def _dvaluess():
-        for i in range(d_size/ch_size):
-            ts = dvalues_s.read(2*ch_size)
-            line_dvalues = []
-            for ch in range(ch_size):
-                line_dvalues.append(
-                    data_value_reader.unpack(ts[ch:ch+2])[0])
-            yield line_dvalues
+    for i in range(ch_size):
+        vheaders.append(VariableHeader._make(
+            variable_header_parser.unpack(vheaders_s.read(96))))
+
+    for i in range(d_size/ch_size):
+        ts = dvalues_s.read(2*ch_size)
+        line_dvalues = []
+        for ch in range(ch_size):
+            line_dvalues.append(
+                data_value_reader.unpack(ts[2*ch:2*ch+2])[0])
+        dvaluess.append(line_dvalues)
             
-    return fixed_header, _vheaders(), _dvaluess()
+    return fixed_header, vheaders, dvaluess    
 
 if __name__ == '_main__':
     pass
