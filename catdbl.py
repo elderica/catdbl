@@ -37,7 +37,7 @@ FixedHeader = collections.namedtuple('FixedHeader', [
     ])
 
 variable_header_parser = struct.Struct('<32s8sfLfLLLL28s')
-VariableHeader = collections.namedtuple('Variable_Header', [
+VariableHeader = collections.namedtuple('VariableHeader', [
     'channel_comment',
     'unit',
     'full_scale',
@@ -78,7 +78,7 @@ def parse(fp):
                 data_value_reader.unpack(ts[2*ch:2*ch+2])[0])
         dvaluess.append(line_dvalues)
             
-    return fixed_header, vheaders, dvaluess    
+    return fixed_header, vheaders, dvaluess
 
 if __name__ == '_main__':
     pass
