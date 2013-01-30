@@ -16,7 +16,6 @@
 
 import collections
 import struct
-import StringIO
 import csv
 import sys
 
@@ -66,26 +65,20 @@ def parse(fp):
     ch_size = fixed_header.channel_size
     d_size = fixed_header.data_size
 
-    vheaders_s = StringIO.StringIO(fp.read(96*ch_size))
-    dvalues_s = StringIO.StringIO(fp.read())
-
     vheaders = []
     dvaluess = []
 
     for i in range(ch_size):
         vheaders.append(VariableHeader._make(
-            variable_header_parser.unpack(vheaders_s.read(96))))
+            variable_header_parser.unpack(fp.read(96))))
 
     for i in range(d_size):
-        ts = dvalues_s.read(2*ch_size)
         line_dvalues = []
         for ch in range(ch_size):
             line_dvalues.append(
-                data_value_reader.unpack(ts[2*ch:2*ch+2])[0])
+                data_value_reader.unpack(fp.read(2))[0])
         dvaluess.append(line_dvalues)
 
-    vheaders_s.close()
-    dvalues_s.close()
     return ParsedTarget._make((fixed_header, vheaders, dvaluess))
 
 def csv_print(pt, fp):
