@@ -83,22 +83,27 @@ def parse(fp):
 
 def csv_print(pt, fp):
     out = csv.writer(fp)
-    out.writerow([pt.fixed_header.title])
+    out.writerow([s.strip() for s in pt.fixed_header[2:10]])
     out.writerow([t.channel_comment.strip() for t in pt.variable_headers])
     for dvs in pt.data_valuess:
         epairs = zip([ch.physical_amount_cf for ch in pt.variable_headers], dvs)
         out.writerow(['%9.4E' % (p[0]*p[1],) for p in epairs])        
 
 def main():
-    if len(sys.argv) > 1:
-        fp = file(sys.argv[1], 'rb')
+    if len(sys.argv) > 2:
+        fp1 = file(sys.argv[1], 'rb')
+        fp2 = file(sys.argv[2], 'w')
+    elif len(sys.argv) > 1:
+        fp1 = file(sys.argv[1], 'rb')
+        fp2 = sys.stdout
     else:
-        fp = sys.stdin
+        fp1 = sys.stdin
+        fp2 = sys.stdout
 
-    pt = parse(fp)
-    csv_print(pt, sys.stdout)
+    pt = parse(fp1)
+    csv_print(pt, fp2)
 
-    fp.close()
+    fp1.close(); fp2.close()
 
 if __name__ == '_main__':
-    pass
+    main()
