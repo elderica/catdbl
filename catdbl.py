@@ -7,9 +7,9 @@
 # documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to
 # whom the Software is furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 # FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -83,27 +83,26 @@ def parse(fp):
 
 def csv_print(pt, fp):
     out = csv.writer(fp)
-    out.writerow([s.strip() for s in pt.fixed_header[2:10]])
+    out.writerow([str(s).strip() for s in pt.fixed_header[2:10]])
     out.writerow([t.channel_comment.strip() for t in pt.variable_headers])
     for dvs in pt.data_valuess:
         epairs = zip([ch.physical_amount_cf for ch in pt.variable_headers], dvs)
-        out.writerow(['%9.4E' % (p[0]*p[1],) for p in epairs])        
+        out.writerow(['%9.4E' % (p[0]*p[1],) for p in epairs])
 
 def main():
-    if len(sys.argv) > 2:
-        fp1 = file(sys.argv[1], 'rb')
-        fp2 = file(sys.argv[2], 'w')
-    elif len(sys.argv) > 1:
-        fp1 = file(sys.argv[1], 'rb')
-        fp2 = sys.stdout
-    else:
-        fp1 = sys.stdin
-        fp2 = sys.stdout
+    with sys.stdin as stdin, sys.stdout as stdout:
+        if len(sys.argv) > 1:
+            with open(sys.argv[1], 'rb') as inpf:
+                pt = parse(inpf)
+                if len(sys.argv) > 2:
+                    with open(sys.argv[2], 'w') as outf:
+                        csv_print(pt, outf)
+                else:
+                     csv_print(pt, stdout)
+        else:
+            pt = parse(stdin)
+            csv_print(pt, stdout)
 
-    pt = parse(fp1)
-    csv_print(pt, fp2)
-
-    fp1.close(); fp2.close()
-
-if __name__ == '_main__':
+if __name__ == '__main__':
     main()
+
